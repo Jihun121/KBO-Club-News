@@ -1,7 +1,0 @@
-name = "kbo-club-news-api"
-main = "src/index.js"
-compatibility_date = "2026-10-13"
-
-[vars]
-# GitHub Pages origin only; this is not a secret.
-ALLOWED_ORIGIN = "https://jihun121.github.io"
