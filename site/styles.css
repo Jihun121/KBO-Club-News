@@ -47,3 +47,23 @@
   .feed-tools { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
   .sort-control { gap: 5px; }
 }
+
+
+/* Make the two dropdowns clearly clickable with a visible chevron. */
+.field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 42px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a7f36b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px 16px;
+  cursor: pointer;
+}
+.field select:hover {
+  border-color: #6d8a57;
+}
+.field select:focus-visible {
+  outline: 2px solid #a7f36b;
+  outline-offset: 2px;
+}
