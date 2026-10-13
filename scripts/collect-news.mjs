@@ -171,7 +171,7 @@ async function main() {
   };
 
   await mkdir(dirname(OUTPUT_PATH), { recursive: true });
-  await writeFile(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\\n", "utf8");
+  await writeFile(OUTPUT_PATH, JSON.stringify(output, null, 2) + "\n", "utf8");
   console.log(`Wrote ${OUTPUT_PATH}; successful feeds: ${successfulFeeds}; failed feeds: ${errors.length}`);
 }
 
