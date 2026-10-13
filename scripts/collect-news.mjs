@@ -112,7 +112,7 @@ function uniqueItems(items) {
 async function main() {
   const teams = JSON.parse(await readFile(TEAMS_PATH, "utf8"));
   const tasks = teams.flatMap((team) => [
-    { team, source: "news", query: `"${team.name}" 야구 when:7d` },
+    { team, source: "news", query: `"${team.name}" ${team.sportKeyword || "스포츠"} when:7d` },
     { team, source: "official", query: `site:${team.officialDomain} "${team.name}" when:30d` }
   ]);
 
@@ -163,7 +163,8 @@ async function main() {
   const output = {
     generatedAt: new Date().toISOString(),
     provider: "Google News RSS",
-    note: "RSS 검색 결과는 30분마다 GitHub Actions에서 수집됩니다. Google News RSS는 공식 보장 API가 아니므로 결과나 피드 형식이 바뀔 수 있습니다.",
+    leagues: [...new Set(teams.map((team) => team.league))],
+    note: "KBO 및 K리그 기사 RSS 검색 결과를 30분마다 GitHub Actions에서 수집합니다. Google News RSS는 공식 보장 API가 아니므로 결과나 피드 형식이 바뀔 수 있습니다.",
     successfulFeeds,
     failedFeeds: errors.length,
     errors,
