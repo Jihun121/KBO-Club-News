@@ -30,20 +30,20 @@ function readTag(xml, tag) {
 }
 
 function stripMarkup(value) {
-  return decodeXml(value.replace(/<[^>]*>/g, " ").replace(/\\s+/g, " "));
+  return decodeXml(value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " "));
 }
 
 function parseRss(xml) {
   const items = [];
-  for (const match of xml.matchAll(/<item\\b[^>]*>([\\s\\S]*?)<\\/item>/gi)) {
+  for (const match of xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)) {
     const block = match[1];
     const title = stripMarkup(readTag(block, "title"));
     const link = readTag(block, "link");
     const pubDate = readTag(block, "pubDate");
     const description = stripMarkup(readTag(block, "description"));
-    const sourceBlock = block.match(/<source\\b([^>]*)>([\\s\\S]*?)<\\/source>/i);
+    const sourceBlock = block.match(/<source\b([^>]*)>([\s\S]*?)<\/source>/i);
     const source = sourceBlock ? stripMarkup(sourceBlock[2]) : "Google News";
-    if (!title || !/^https?:\\/\\//i.test(link)) continue;
+    if (!title || !/^https?:\/\//i.test(link)) continue;
     items.push({ title, link, pubDate, description, source });
     if (items.length >= MAX_ITEMS) break;
   }
@@ -102,7 +102,7 @@ async function mapLimit(items, limit, callback) {
 function uniqueItems(items) {
   const seen = new Set();
   return items.filter((item) => {
-    const key = item.link.replace(/[?#].*$/, "").replace(/\\/$/, "");
+    const key = item.link.replace(/[?#].*$/, "").replace(/\/$/, "");
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
