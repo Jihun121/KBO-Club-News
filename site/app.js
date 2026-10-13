@@ -214,8 +214,8 @@ function renderRawSearchResults(container, items, sourceKind) {
 
 function renderResponseMeta(container, result) {
   const parts = [];
-  if (Number.isFinite(Number(result?.total))) parts.push(`검색 API 제공 총 ${result.total}건`);
-  if (Number.isFinite(Number(result?.display))) parts.push(`현재 ${result.display}건 표시`);
+  if (Number.isFinite(Number(result?.total))) parts.push(`피드 검색 결과 ${result.total}건`);
+  if (Number.isFinite(Number(result?.display))) parts.push(`피드에서 ${result.display}건 제공`);
   if (result?.lastBuildDate) parts.push(String(result.lastBuildDate));
   container.textContent = parts.join(" · ");
 }
@@ -237,9 +237,9 @@ function setTab(tab) {
   elements.officialPanel.hidden = tab !== "official";
   elements.linksPanel.hidden = tab !== "links";
   const team = getSelectedTeam();
-  elements.feedTitle.textContent = tab === "news" ? (team ? `${team.name} · 뉴스 검색` : "국내 언론 기사")
-    : tab === "official" ? (team ? `${team.name} · 공식 도메인 검색` : "구단 공식 도메인 검색")
-      : "KBO 구단 공식 홈페이지";
+  elements.feedTitle.textContent = tab === "news" ? (team ? `${team.name} · 기사 모음` : "국내 스포츠 기사")
+    : tab === "official" ? (team ? `${team.name} · 공식 도메인 소식` : "구단 공식 도메인 소식")
+      : `${elements.leagueSelect.value} 구단 공식 소식`;
   if (tab !== "links" && team) loadActiveFeed(true);
 }
 
@@ -282,7 +282,7 @@ async function loadActiveFeed(force = false) {
     }
   } catch (error) {
     const container = requestedTab === "news" ? elements.newsList : elements.officialList;
-    container.replaceChildren(makeEmpty("검색 결과를 불러오지 못했습니다.", error.message || "Cloudflare Worker와 NAVER API HUB 설정을 확인해 주세요."));
+    container.replaceChildren(makeEmpty("검색 결과를 불러오지 못했습니다.", error.message || "다음 RSS 갱신 결과를 확인해 주세요."));
     if (getSelectedTeam()?.id === team.id && activeTab === requestedTab) {
       setStatus("검색 오류", "error");
       elements.refreshHelp.textContent = "GitHub Actions의 RSS 수집 결과를 확인해 주세요.";
