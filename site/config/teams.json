@@ -1,0 +1,12 @@
+[
+  {"id":"lg","name":"LG 트윈스","officialUrl":"https://www.lgtwins.com/","officialDomain":"lgtwins.com"},
+  {"id":"doosan","name":"두산 베어스","officialUrl":"https://www.doosanbears.com/","officialDomain":"doosanbears.com"},
+  {"id":"kt","name":"KT 위즈","officialUrl":"https://www.ktwiz.co.kr/","officialDomain":"ktwiz.co.kr"},
+  {"id":"ssg","name":"SSG 랜더스","officialUrl":"https://www.ssglanders.com/","officialDomain":"ssglanders.com"},
+  {"id":"nc","name":"NC 다이노스","officialUrl":"https://www.ncdinos.com/","officialDomain":"ncdinos.com"},
+  {"id":"lotte","name":"롯데 자이언츠","officialUrl":"https://www.giantsclub.com/","officialDomain":"giantsclub.com"},
+  {"id":"samsung","name":"삼성 라이온즈","officialUrl":"https://www.samsunglions.com/","officialDomain":"samsunglions.com"},
+  {"id":"kia","name":"KIA 타이거즈","officialUrl":"https://tigers.co.kr/","officialDomain":"tigers.co.kr"},
+  {"id":"hanwha","name":"한화 이글스","officialUrl":"https://www.hanwhaeagles.co.kr/","officialDomain":"hanwhaeagles.co.kr"},
+  {"id":"kiwoom","name":"키움 히어로즈","officialUrl":"https://www.heroesbaseball.co.kr/","officialDomain":"heroesbaseball.co.kr"}
+]
