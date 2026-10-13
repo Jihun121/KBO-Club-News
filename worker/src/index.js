@@ -70,7 +70,6 @@ export default {
     apiUrl.searchParams.set("query", query);
     apiUrl.searchParams.set("display", "30");
     apiUrl.searchParams.set("sort", "date");
-    apiUrl.searchParams.set("format", "json");
 
     try {
       // Pass the provider response body through without caching, sorting,
