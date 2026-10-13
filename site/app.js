@@ -2,7 +2,10 @@ const TEAM_CONFIG_URL = "./config/teams.json";
 const AUTO_REFRESH_MS = 30 * 60 * 1000;
 const NEWS_DATA_URL = "./data/news.json";
 const elements = {
+  leagueSelect: document.querySelector("#leagueSelect"),
   teamSelect: document.querySelector("#teamSelect"),
+  teamCount: document.querySelector("#teamCount"),
+  sortSelect: document.querySelector("#sortSelect"),
   refreshButton: document.querySelector("#refreshButton"),
   refreshHelp: document.querySelector("#refreshHelp"),
   newsTab: document.querySelector("#newsTab"),
@@ -25,6 +28,7 @@ let activeTab = "news";
 let loading = false;
 let lastRequestedKey = "";
 let refreshTimer = null;
+const loadedFeeds = Object.create(null);
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
@@ -74,48 +78,76 @@ function makeEmpty(title, description) {
   return box;
 }
 
-function populateTeams() {
-  for (const team of teams) {
+function populateTeams(preferredId = "") {
+  const league = elements.leagueSelect.value || "KBO";
+  const leagueTeams = teams.filter((team) => team.league === league);
+  elements.teamSelect.replaceChildren();
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "구단을 선택하세요";
+  elements.teamSelect.append(placeholder);
+
+  for (const team of leagueTeams) {
     const option = document.createElement("option");
     option.value = team.id;
     option.textContent = team.name;
     elements.teamSelect.append(option);
   }
-  const saved = localStorage.getItem("club-news-selected-team");
-  if (teams.some((team) => team.id === saved)) elements.teamSelect.value = saved;
+
+  const saved = preferredId || localStorage.getItem("club-news-selected-team") || "";
+  elements.teamSelect.value = leagueTeams.some((team) => team.id === saved) ? saved : "";
+  elements.teamCount.textContent = `${league} · ${leagueTeams.length}개 구단`;
 }
 
 function renderTeamLinks() {
   elements.teamLinks.replaceChildren();
-  for (const team of teams) {
+  const league = elements.leagueSelect.value || "KBO";
+  for (const team of teams.filter((item) => item.league === league)) {
     const card = document.createElement("article");
     card.className = "official-card";
     const copy = document.createElement("div");
     const title = document.createElement("strong");
     title.textContent = team.name;
     const description = document.createElement("p");
-    description.textContent = team.officialDomain;
+    description.textContent = team.officialLabel || team.officialDomain;
     copy.append(title, description);
     const anchor = document.createElement("a");
     anchor.href = safeUrl(team.officialUrl) || "#";
     anchor.target = "_blank";
     anchor.rel = "noopener noreferrer";
-    anchor.textContent = "공식 사이트 ↗";
+    anchor.textContent = team.league === "KBO" ? "공식 사이트 ↗" : "리그 공식 소식 ↗";
     card.append(copy, anchor);
     elements.teamLinks.append(card);
   }
 }
 
+function sortArticles(items) {
+  const mode = elements.sortSelect.value;
+  return items.map((item, index) => ({ item, index })).sort((a, b) => {
+    if (mode === "title") {
+      const titleA = String(a.item.title || "").replace(/<[^>]*>/g, "").toLocaleLowerCase("ko-KR");
+      const titleB = String(b.item.title || "").replace(/<[^>]*>/g, "").toLocaleLowerCase("ko-KR");
+      return titleA.localeCompare(titleB, "ko") || a.index - b.index;
+    }
+    const dateA = Date.parse(a.item.pubDate || "") || 0;
+    const dateB = Date.parse(b.item.pubDate || "") || 0;
+    if (dateA && !dateB) return -1;
+    if (dateB && !dateA) return 1;
+    if (dateA === dateB) return a.index - b.index;
+    return mode === "oldest" ? dateA - dateB : dateB - dateA;
+  }).map((entry) => entry.item);
+}
+
 function renderRawSearchResults(container, items, sourceKind) {
   container.replaceChildren();
   if (!Array.isArray(items) || items.length === 0) {
-    container.append(makeEmpty("검색 결과가 없습니다.", "검색 API에서 반환한 결과가 없습니다. 구단명을 확인하거나 잠시 후 다시 조회해 주세요."));
+    container.append(makeEmpty("검색 결과가 없습니다.", "해당 구단에서 찾은 기사가 없습니다. 다른 구단을 선택하거나 다음 갱신 후 다시 확인해 주세요."));
     return;
   }
 
-  // Do not re-sort, categorize, rewrite, deduplicate, or persist provider results.
-  // Render only the returned items in the exact order supplied by the API.
-  for (const item of items) {
+  // These are RSS items collected into our own static dataset. The user's selected
+  // order is applied locally and never changes the source feed or original links.
+  for (const item of sortArticles(items)) {
     const card = document.createElement("article");
     card.className = "news-card";
     const title = document.createElement("h3");
@@ -152,7 +184,7 @@ function renderRawSearchResults(container, items, sourceKind) {
     actions.className = "card-actions";
     const sourceName = document.createElement("span");
     sourceName.className = "source-name";
-    sourceName.textContent = sourceKind === "news" ? "Google News RSS · 뉴스 검색" : "Google News RSS · 공식 도메인 검색";
+    sourceName.textContent = sourceKind === "news" ? "Google News RSS · 기사 모음" : "Google News RSS · 공식 도메인 검색";
     const links = document.createElement("div");
     links.className = "article-links";
     if (primaryLink) {
@@ -160,7 +192,7 @@ function renderRawSearchResults(container, items, sourceKind) {
       primary.href = primaryLink;
       primary.target = "_blank";
       primary.rel = "noopener noreferrer";
-      primary.textContent = sourceKind === "news" ? "기사 열기 ↗" : "공식 페이지 열기 ↗";
+      primary.textContent = sourceKind === "news" ? "기사 열기 ↗" : "공식 소식 열기 ↗";
       links.append(primary);
     }
     if (sourceKind === "news" && item.originallink) {
@@ -218,7 +250,7 @@ async function requestFeed(source, team) {
   const data = await response.json();
   const feed = data?.teams?.[team.id]?.[source];
   if (!feed || !Array.isArray(feed.items)) throw new Error("수집된 뉴스 데이터가 없습니다. GitHub Actions에서 RSS 갱신이 완료됐는지 확인해 주세요.");
-  return feed;
+  return { ...feed, generatedAt: data.generatedAt, provider: data.provider };
 }
 
 async function loadActiveFeed(force = false) {
@@ -233,9 +265,10 @@ async function loadActiveFeed(force = false) {
   elements.refreshButton.disabled = true;
   elements.refreshHelp.textContent = "검색 결과를 불러오는 중…";
   setStatus("검색 중…");
-  elements.feedTitle.textContent = requestedTab === "news" ? `${team.name} · 뉴스 검색` : `${team.name} · 공식 도메인 검색`;
+  elements.feedTitle.textContent = requestedTab === "news" ? `${team.name} · 기사 모음` : `${team.name} · 공식 도메인 검색`;
   try {
     const result = await requestFeed(requestedTab, team);
+    loadedFeeds[key] = result;
     if (requestedTab === "news") {
       renderResponseMeta(elements.newsMeta, result);
       renderRawSearchResults(elements.newsList, result.items, "news");
@@ -244,7 +277,7 @@ async function loadActiveFeed(force = false) {
       renderRawSearchResults(elements.officialList, result.items, "official");
     }
     if (getSelectedTeam()?.id === team.id && activeTab === requestedTab) {
-      setStatus(result.lastBuildDate ? `검색 결과 갱신 · ${result.lastBuildDate}` : `검색 결과 갱신 · ${new Date().toLocaleTimeString("ko-KR")}`, "ok");
+      setStatus(result.generatedAt ? `데이터 갱신 · ${new Date(result.generatedAt).toLocaleString("ko-KR")}` : result.lastBuildDate ? `검색 결과 갱신 · ${result.lastBuildDate}` : `검색 결과 갱신 · ${new Date().toLocaleTimeString("ko-KR")}`, "ok");
       elements.refreshHelp.textContent = "페이지가 열려 있으면 30분마다 자동 새로고침합니다.";
     }
   } catch (error) {
@@ -252,7 +285,7 @@ async function loadActiveFeed(force = false) {
     container.replaceChildren(makeEmpty("검색 결과를 불러오지 못했습니다.", error.message || "Cloudflare Worker와 NAVER API HUB 설정을 확인해 주세요."));
     if (getSelectedTeam()?.id === team.id && activeTab === requestedTab) {
       setStatus("검색 오류", "error");
-      elements.refreshHelp.textContent = "Worker 주소, API 키, 구단 검색 권한을 확인해 주세요.";
+      elements.refreshHelp.textContent = "GitHub Actions의 RSS 수집 결과를 확인해 주세요.";
     }
   } finally {
     loading = false;
@@ -270,12 +303,15 @@ async function initialize() {
     const response = await fetch(TEAM_CONFIG_URL, { cache: "no-store" });
     if (!response.ok) throw new Error("구단 목록을 불러오지 못했습니다.");
     teams = await response.json();
-    populateTeams();
+    const savedId = localStorage.getItem("club-news-selected-team") || "";
+    const savedTeam = teams.find((team) => team.id === savedId);
+    if (savedTeam) elements.leagueSelect.value = savedTeam.league;
+    populateTeams(savedId);
     renderTeamLinks();
     const selected = getSelectedTeam();
     if (selected) {
       elements.refreshButton.disabled = false;
-      elements.refreshHelp.textContent = "페이지가 열려 있으면 30분마다 자동 새로고침합니다.";
+      elements.refreshHelp.textContent = "GitHub Actions가 약 30분마다 기사를 갱신합니다.";
       setTab("news");
     } else {
       setStatus("구단 선택 대기");
@@ -292,13 +328,40 @@ async function initialize() {
   }, AUTO_REFRESH_MS);
 }
 
+elements.leagueSelect.addEventListener("change", () => {
+  populateTeams("");
+  renderTeamLinks();
+  elements.refreshButton.disabled = true;
+  lastRequestedKey = "";
+  localStorage.removeItem("club-news-selected-team");
+  elements.feedTitle.textContent = "구단을 선택해 주세요";
+  setStatus("구단 선택 대기");
+  if (activeTab !== "links") {
+    elements.newsList.replaceChildren(makeEmpty("구단을 선택해 주세요.", "리그를 변경했습니다. 관심 구단을 선택하면 기사가 표시됩니다."));
+    elements.officialList.replaceChildren(makeEmpty("구단을 선택해 주세요.", "리그를 변경했습니다. 관심 구단을 선택하면 공식 소식을 확인할 수 있습니다."));
+  }
+});
+elements.sortSelect.addEventListener("change", () => {
+  const team = getSelectedTeam();
+  if (!team || activeTab === "links") return;
+  const key = `${activeTab}:${team.id}`;
+  const result = loadedFeeds[key];
+  if (!result) return;
+  if (activeTab === "news") {
+    renderResponseMeta(elements.newsMeta, result);
+    renderRawSearchResults(elements.newsList, result.items, "news");
+  } else {
+    renderResponseMeta(elements.officialMeta, result);
+    renderRawSearchResults(elements.officialList, result.items, "official");
+  }
+});
 elements.teamSelect.addEventListener("change", () => {
   const team = getSelectedTeam();
   if (team) localStorage.setItem("club-news-selected-team", team.id);
   else localStorage.removeItem("club-news-selected-team");
   elements.refreshButton.disabled = !team;
   lastRequestedKey = "";
-  const headline = activeTab === "news" ? "뉴스 검색" : activeTab === "official" ? "공식 도메인 검색" : "공식 홈페이지";
+  const headline = activeTab === "news" ? "기사 모음" : activeTab === "official" ? "공식 도메인 검색" : "공식 소식";
   elements.feedTitle.textContent = team ? `${team.name} · ${headline}` : "구단을 선택해 주세요";
   if (activeTab !== "links") loadActiveFeed(true);
 });
