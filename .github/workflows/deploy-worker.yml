@@ -1,0 +1,47 @@
+name: Deploy KBO Club News API Worker
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kbo-club-news-worker
+  cancel-in-progress: true
+
+jobs:
+  deploy-worker:
+    name: Deploy Cloudflare Worker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Validate Worker JavaScript
+        run: node --check worker/src/index.js
+      - name: Deploy Worker and configure private Naver credentials
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4"
+          workingDirectory: worker
+          command: deploy
+          secrets: |
+            NAVER_API_HUB_KEY_ID
+            NAVER_API_HUB_KEY
+        env:
+          NAVER_API_HUB_KEY_ID: ${{ secrets.NAVER_API_HUB_KEY_ID }}
+          NAVER_API_HUB_KEY: ${{ secrets.NAVER_API_HUB_KEY }}
+      - name: Show Worker URL
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          COMMAND_OUTPUT: ${{ steps.deploy.outputs.command-output }}
+        run: |
+          if [ -n "$DEPLOYMENT_URL" ]; then
+            echo "Worker deployment URL: $DEPLOYMENT_URL"
+          else
+            echo "Worker deployed. Check Wrangler output above for the workers.dev URL."
+          fi
+          echo "$COMMAND_OUTPUT" | grep -Eo 'https://[^ ]+\.workers\.dev' | sort -u || true
