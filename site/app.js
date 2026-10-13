@@ -1,6 +1,6 @@
-const API_BASE = String(window.CLUB_NEWS_CONFIG?.apiBaseUrl || "").replace(/\/$/, "");
 const TEAM_CONFIG_URL = "./config/teams.json";
 const AUTO_REFRESH_MS = 30 * 60 * 1000;
+const NEWS_DATA_URL = "./data/news.json";
 const elements = {
   teamSelect: document.querySelector("#teamSelect"),
   refreshButton: document.querySelector("#refreshButton"),
@@ -138,6 +138,11 @@ function renderRawSearchResults(container, items, sourceKind) {
     description.innerHTML = safeProviderMarkup(String(item.description || ""));
     const metadata = document.createElement("div");
     metadata.className = "news-meta";
+    if (item.source) {
+      const publisher = document.createElement("span");
+      publisher.textContent = String(item.source);
+      metadata.append(publisher);
+    }
     if (item.pubDate) {
       const published = document.createElement("time");
       published.textContent = String(item.pubDate);
@@ -147,7 +152,7 @@ function renderRawSearchResults(container, items, sourceKind) {
     actions.className = "card-actions";
     const sourceName = document.createElement("span");
     sourceName.className = "source-name";
-    sourceName.textContent = sourceKind === "news" ? "NAVER 뉴스 검색결과" : "NAVER 웹 문서 검색결과";
+    sourceName.textContent = sourceKind === "news" ? "Google News RSS · 뉴스 검색" : "Google News RSS · 공식 도메인 검색";
     const links = document.createElement("div");
     links.className = "article-links";
     if (primaryLink) {
@@ -155,7 +160,7 @@ function renderRawSearchResults(container, items, sourceKind) {
       primary.href = primaryLink;
       primary.target = "_blank";
       primary.rel = "noopener noreferrer";
-      primary.textContent = sourceKind === "news" ? "검색 결과 링크 ↗" : "페이지 열기 ↗";
+      primary.textContent = sourceKind === "news" ? "기사 열기 ↗" : "공식 페이지 열기 ↗";
       links.append(primary);
     }
     if (sourceKind === "news" && item.originallink) {
@@ -207,16 +212,13 @@ function setTab(tab) {
 }
 
 async function requestFeed(source, team) {
-  if (!API_BASE || API_BASE.includes("YOUR-WORKER-NAME")) {
-    throw new Error("Cloudflare Worker 주소를 site/config.js에 설정해야 합니다.");
-  }
-  const path = source === "news" ? "/news" : "/official";
-  const url = new URL(API_BASE + path);
-  url.searchParams.set("team", team.id);
-  const response = await fetch(url.href, { cache: "no-store", headers: { "Accept": "application/json" } });
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.error || `API 요청 오류 (${response.status})`);
-  return body;
+  const url = NEWS_DATA_URL + "?cache=" + Date.now();
+  const response = await fetch(url, { cache: "no-store", headers: { "Accept": "application/json" } });
+  if (!response.ok) throw new Error(`뉴스 데이터를 불러오지 못했습니다. (HTTP ${response.status})`);
+  const data = await response.json();
+  const feed = data?.teams?.[team.id]?.[source];
+  if (!feed || !Array.isArray(feed.items)) throw new Error("수집된 뉴스 데이터가 없습니다. GitHub Actions에서 RSS 갱신이 완료됐는지 확인해 주세요.");
+  return feed;
 }
 
 async function loadActiveFeed(force = false) {
