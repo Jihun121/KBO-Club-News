@@ -1,12 +1,343 @@
 [
-  {"id":"lg","name":"LG 트윈스","officialUrl":"https://www.lgtwins.com/","officialDomain":"lgtwins.com"},
-  {"id":"doosan","name":"두산 베어스","officialUrl":"https://www.doosanbears.com/","officialDomain":"doosanbears.com"},
-  {"id":"kt","name":"KT 위즈","officialUrl":"https://www.ktwiz.co.kr/","officialDomain":"ktwiz.co.kr"},
-  {"id":"ssg","name":"SSG 랜더스","officialUrl":"https://www.ssglanders.com/","officialDomain":"ssglanders.com"},
-  {"id":"nc","name":"NC 다이노스","officialUrl":"https://www.ncdinos.com/","officialDomain":"ncdinos.com"},
-  {"id":"lotte","name":"롯데 자이언츠","officialUrl":"https://www.giantsclub.com/","officialDomain":"giantsclub.com"},
-  {"id":"samsung","name":"삼성 라이온즈","officialUrl":"https://www.samsunglions.com/","officialDomain":"samsunglions.com"},
-  {"id":"kia","name":"KIA 타이거즈","officialUrl":"https://tigers.co.kr/","officialDomain":"tigers.co.kr"},
-  {"id":"hanwha","name":"한화 이글스","officialUrl":"https://www.hanwhaeagles.co.kr/","officialDomain":"hanwhaeagles.co.kr"},
-  {"id":"kiwoom","name":"키움 히어로즈","officialUrl":"https://www.heroesbaseball.co.kr/","officialDomain":"heroesbaseball.co.kr"}
+  {
+    "id": "lg",
+    "name": "LG 트윈스",
+    "officialUrl": "https://www.lgtwins.com/",
+    "officialDomain": "lgtwins.com",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "doosan",
+    "name": "두산 베어스",
+    "officialUrl": "https://www.doosanbears.com/",
+    "officialDomain": "doosanbears.com",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "kt",
+    "name": "KT 위즈",
+    "officialUrl": "https://www.ktwiz.co.kr/",
+    "officialDomain": "ktwiz.co.kr",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "ssg",
+    "name": "SSG 랜더스",
+    "officialUrl": "https://www.ssglanders.com/",
+    "officialDomain": "ssglanders.com",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "nc",
+    "name": "NC 다이노스",
+    "officialUrl": "https://www.ncdinos.com/",
+    "officialDomain": "ncdinos.com",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "lotte",
+    "name": "롯데 자이언츠",
+    "officialUrl": "https://www.giantsclub.com/",
+    "officialDomain": "giantsclub.com",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "samsung",
+    "name": "삼성 라이온즈",
+    "officialUrl": "https://www.samsunglions.com/",
+    "officialDomain": "samsunglions.com",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "kia",
+    "name": "KIA 타이거즈",
+    "officialUrl": "https://tigers.co.kr/",
+    "officialDomain": "tigers.co.kr",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "hanwha",
+    "name": "한화 이글스",
+    "officialUrl": "https://www.hanwhaeagles.co.kr/",
+    "officialDomain": "hanwhaeagles.co.kr",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "kiwoom",
+    "name": "키움 히어로즈",
+    "officialUrl": "https://www.heroesbaseball.co.kr/",
+    "officialDomain": "heroesbaseball.co.kr",
+    "league": "KBO",
+    "sportKeyword": "야구"
+  },
+  {
+    "id": "k1-gangwon",
+    "name": "강원 FC",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-gwangju",
+    "name": "광주 FC",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-gimcheon",
+    "name": "김천상무",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-daejeon",
+    "name": "대전하나시티즌",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-bucheon",
+    "name": "부천 FC 1995",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-seoul",
+    "name": "FC 서울",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-anyang",
+    "name": "FC 안양",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-ulsan",
+    "name": "울산 HD",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-incheon",
+    "name": "인천유나이티드",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-jeonbuk",
+    "name": "전북현대",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-jeju",
+    "name": "제주 SK",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k1-pohang",
+    "name": "포항스틸러스",
+    "league": "K리그1",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-gyeongnam",
+    "name": "경남 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-gimpo",
+    "name": "김포 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-gimhae",
+    "name": "김해 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-daegu",
+    "name": "대구 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-busan",
+    "name": "부산아이파크",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-seouleland",
+    "name": "서울이랜드",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-seongnam",
+    "name": "성남 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-suwonbluewings",
+    "name": "수원삼성",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-suwonfc",
+    "name": "수원 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-ansan",
+    "name": "안산그리너스",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-yongin",
+    "name": "용인 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-jeonnam",
+    "name": "전남드래곤즈",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-cheonan",
+    "name": "천안시티 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-chungnamasan",
+    "name": "충남아산 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-cheongju",
+    "name": "충북청주 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-paju",
+    "name": "파주프론티어",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  },
+  {
+    "id": "k2-hwaseong",
+    "name": "화성 FC",
+    "league": "K리그2",
+    "sportKeyword": "축구",
+    "officialUrl": "https://www.kleague.com/news.do",
+    "officialDomain": "kleague.com",
+    "officialLabel": "K리그 공식 뉴스"
+  }
 ]
