@@ -37,21 +37,34 @@ NAVER API HUB 개요: https://api.ncloud-docs.com/docs/naver-api-hub-overview
 
 ## 3. Cloudflare Worker 배포 및 키 등록
 
-Cloudflare 계정과 Node.js/npm이 필요합니다. 터미널에서 다음을 실행합니다.
+이 프로젝트는 저장소의 GitHub Actions를 이용해 Worker를 배포할 수 있습니다. 인증값을 채팅에 보내거나 소스 코드에 넣지 말고, GitHub 저장소 Secrets에 직접 등록하세요.
 
-```bash
-cd worker
-npx wrangler login
-npx wrangler secret put NAVER_API_HUB_KEY_ID
-npx wrangler secret put NAVER_API_HUB_KEY
-npx wrangler deploy
-```
+### GitHub 저장소 Secrets 등록
 
-각 `secret put` 명령을 실행하면 값을 입력하라는 안내가 나옵니다. `NAVER_API_HUB_KEY_ID`에는 Client ID를, `NAVER_API_HUB_KEY`에는 Client Secret을 입력합니다. 비밀 키를 `wrangler.toml`, `config.js`, JavaScript 파일 또는 GitHub에 직접 저장하지 마세요.
+저장소의 **Settings → Secrets and variables → Actions → New repository secret**에서 아래 네 항목을 각각 등록합니다.
 
-`worker/wrangler.toml`의 `ALLOWED_ORIGIN`은 GitHub Pages 사이트의 **origin**으로 맞춥니다. 기본값 `https://jihun121.github.io`는 이 사용자의 Pages 주소에 맞춘 값입니다. 다른 도메인을 사용하면 그 origin으로 변경합니다.
+| Secret 이름 | 값 |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare 계정에서 만든 API Token |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 대시보드의 Account ID |
+| `NAVER_API_HUB_KEY_ID` | NAVER API HUB Client ID |
+| `NAVER_API_HUB_KEY` | NAVER API HUB Client Secret |
 
-배포가 끝나면 Wrangler 출력에 표시된 Worker URL을 복사합니다.
+Cloudflare API Token은 Account 범위에서 **Edit Cloudflare Workers** 권한을 부여한 토큰을 사용하세요. 계정 ID 및 API Token은 Cloudflare 대시보드에서 확인·생성할 수 있습니다.
+
+### Worker 배포 실행
+
+1. 위 네 Secrets를 저장합니다.
+2. 저장소 **Actions** 탭을 엽니다.
+3. 왼쪽에서 **Deploy KBO Club News API Worker** 워크플로를 선택합니다.
+4. **Run workflow** 버튼을 누릅니다.
+5. 실행 로그의 **Worker deployment URL** 또는 `*.workers.dev` URL을 확인합니다.
+
+배포 과정에서 NAVER 인증값은 Wrangler를 통해 Worker Secret으로 등록됩니다. 값 자체는 저장소 파일이나 브라우저로 전달되지 않습니다.
+
+### GitHub Pages 원본 주소
+
+`worker/wrangler.toml`의 `ALLOWED_ORIGIN`은 사이트의 Origin과 일치해야 합니다. 기본값은 `https://jihun121.github.io`입니다. 프로젝트 경로 `/KBO-Club-News/`는 Origin에 포함하지 않습니다.
 
 ## 4. 프런트엔드에 Worker URL 연결
 
