@@ -1,97 +1,51 @@
-# Club News — KBO 구단 뉴스 모아보기 (AI 미사용)
+# Club News — KBO 구단 기사 모아보기 (AI 미사용)
 
-GitHub Pages + Cloudflare Worker로 동작하는 KBO 10개 구단 뉴스 검색 페이지입니다.
+GitHub Pages + GitHub Actions만으로 운영하는 KBO 10개 구단 기사 모음 사이트입니다. **Cloudflare Worker, API 인증키, 별도 서버가 필요하지 않습니다.**
 
-## 설계상 중요한 점
+## 동작 방식
 
-네이버 검색 API는 검색 결과를 독립적으로 가공 없이 노출하고, 출처 및 원문 링크를 제공하도록 약관이 변경되었습니다. 따라서 이 프로젝트는 검색 결과를 GitHub에 저장하거나 캐싱하지 않습니다. 또한 네이버가 반환한 결과를 자체적으로 재정렬·분류·중복 제거하지 않습니다. 검색 뉴스와 공식 도메인 검색 결과는 서로 다른 탭에 그대로 표시합니다.
+1. GitHub Actions가 30분마다 KBO 구단별 뉴스 RSS 검색 피드를 가져옵니다.
+2. 구단별 뉴스 검색 결과와 구단 공식 도메인 한정 검색 결과를 구분해 JSON을 생성합니다.
+3. 생성된 JSON을 GitHub Pages 배포 파일에 포함합니다.
+4. 웹사이트는 배포된 JSON만 읽어 기사 제목, 출처, 게시 시각, 원문 링크를 표시합니다.
+5. 기사 링크는 새 탭에서 원문으로 열립니다.
 
-현재 약관: https://developers.naver.com/products/terms/
-NAVER API HUB 뉴스 검색 API: https://api.ncloud-docs.com/docs/naver-api-hub-search-news
-NAVER API HUB 개요: https://api.ncloud-docs.com/docs/naver-api-hub-overview
+## 데이터 출처
 
-## 구성
+- **뉴스 검색:** Google News RSS 검색 URL을 사용해 팀명과 야구 관련 기사를 찾습니다.
+- **공식 소식:** 같은 RSS 검색 기능에서 구단 공식 홈페이지 도메인으로 범위를 제한합니다.
+- **공식 홈페이지:** 각 구단의 공식 웹사이트 바로가기 링크를 별도 제공합니다.
 
-- `site/`: 정적 웹사이트. GitHub Pages에 배포
-- `site/config/teams.json`: KBO 10개 구단과 공식 도메인
-- `site/config.js`: 공개 Worker 주소만 설정. 비밀 키를 넣지 않습니다.
-- `worker/src/index.js`: 선택 구단에 대한 뉴스/공식 도메인 검색 API 프록시
-- `worker/wrangler.toml`: Cloudflare Worker 설정
-- `.github/workflows/pages.yml`: Pages 자동 배포
+### 반드시 알아둘 점
 
-검색 결과는 이용자가 선택한 구단에 대해서만 요청됩니다. 페이지가 열려 있고 탭이 활성화된 동안 현재 탭 결과를 30분 간격으로 새로고침합니다. API 응답을 로컬 저장소, GitHub 파일, Cloudflare Cache에 보관하지 않습니다.
+Google News RSS 검색 주소는 Google이 안정성을 보장하는 정식 개발자 API가 아닙니다. RSS 형식, 검색 결과, 제공 범위가 바뀌거나 특정 피드가 실패할 수 있습니다. 이 경우 GitHub Actions 로그에 실패한 피드가 기록되며, 나머지 구단의 검색은 계속 반영됩니다.
 
-## 1. GitHub Pages 설정
+구단 공식 도메인 검색은 모든 공식 공지를 빠짐없이 수집하는 것이 아닙니다. 각 구단에서 RSS 또는 공식 API를 제공하는지 확인되면 별도로 연동할 수 있습니다.
 
-저장소 **Settings → Pages → Build and deployment → Source: GitHub Actions**를 선택합니다. `.github/workflows/pages.yml`이 자동 배포합니다.
+이 프로젝트는 기사 전문을 복사하지 않고 RSS 제목, 설명, 출처, 원문 링크를 중심으로 표시합니다. Google News 검색 결과가 제공하는 기사 제목·설명은 출처 표시와 함께 보여주며, 별도의 AI 요약은 생성하지 않습니다.
 
-## 2. NAVER API HUB 인증 키 발급
+## 갱신 주기
 
-2026년 7월 31일부터 검색 API 신규 신청은 기존 NAVER Developers가 아니라 NAVER API HUB에서 해야 합니다.
+- GitHub Actions schedule: 30분 간격 (17분, 47분)
+- 사이트를 다시 배포할 때마다 `site/data/news.json`을 빌드 과정에서 생성합니다.
+- 수동 갱신: 저장소 **Actions → Deploy Club News to GitHub Pages → Run workflow**
+- RSS 결과는 저장소의 소스 브랜치에 커밋하지 않고 Pages 배포용 임시 아티팩트에만 포함합니다.
 
-1. NAVER Cloud Platform에서 NAVER API HUB 서비스 이용 신청 및 Client ID/Client Secret을 발급받습니다.
-2. Client ID와 Client Secret을 준비합니다.
-3. 키는 Pages나 GitHub 저장소에 넣지 않고 Cloudflare Worker Secret으로 등록합니다.
+GitHub Actions 정기 실행은 부하 상황에 따라 지연될 수 있으므로, 반드시 정확히 30분마다 배포된다고 보장할 수는 없습니다.
 
-검색 API는 하루 최대 25,000회 호출 한도로 안내되어 있습니다. 계정별 적용 조건과 과금/쿼터는 NAVER API HUB 콘솔에서 확인하세요.
+## 구단
 
-## 3. Cloudflare Worker 배포 및 키 등록
+LG 트윈스, 두산 베어스, KT 위즈, SSG 랜더스, NC 다이노스, 롯데 자이언츠, 삼성 라이온즈, KIA 타이거즈, 한화 이글스, 키움 히어로즈.
 
-이 프로젝트는 저장소의 GitHub Actions를 이용해 Worker를 배포할 수 있습니다. 인증값을 채팅에 보내거나 소스 코드에 넣지 말고, GitHub 저장소 Secrets에 직접 등록하세요.
+## 파일 구성
 
-### GitHub 저장소 Secrets 등록
+- `site/index.html`: 페이지 구조
+- `site/styles.css`: 반응형 디자인
+- `site/app.js`: 구단 선택, 탭 전환, 기사 표시, 자동 재조회
+- `site/config/teams.json`: 구단 이름과 공식 홈페이지 도메인
+- `scripts/collect-news.mjs`: RSS 수집 및 JSON 생성
+- `.github/workflows/pages.yml`: 정기 수집 및 GitHub Pages 배포
 
-저장소의 **Settings → Secrets and variables → Actions → New repository secret**에서 아래 네 항목을 각각 등록합니다.
+## 배포
 
-| Secret 이름 | 값 |
-| --- | --- |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare 계정에서 만든 API Token |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 대시보드의 Account ID |
-| `NAVER_API_HUB_KEY_ID` | NAVER API HUB Client ID |
-| `NAVER_API_HUB_KEY` | NAVER API HUB Client Secret |
-
-Cloudflare API Token은 Account 범위에서 **Edit Cloudflare Workers** 권한을 부여한 토큰을 사용하세요. 계정 ID 및 API Token은 Cloudflare 대시보드에서 확인·생성할 수 있습니다.
-
-### Worker 배포 실행
-
-1. 위 네 Secrets를 저장합니다.
-2. 저장소 **Actions** 탭을 엽니다.
-3. 왼쪽에서 **Deploy KBO Club News API Worker** 워크플로를 선택합니다.
-4. **Run workflow** 버튼을 누릅니다.
-5. 실행 로그의 **Worker deployment URL** 또는 `*.workers.dev` URL을 확인합니다.
-
-배포 과정에서 NAVER 인증값은 Wrangler를 통해 Worker Secret으로 등록됩니다. 값 자체는 저장소 파일이나 브라우저로 전달되지 않습니다.
-
-### GitHub Pages 원본 주소
-
-`worker/wrangler.toml`의 `ALLOWED_ORIGIN`은 사이트의 Origin과 일치해야 합니다. 기본값은 `https://jihun121.github.io`입니다. 프로젝트 경로 `/KBO-Club-News/`는 Origin에 포함하지 않습니다.
-
-## 4. 프런트엔드에 Worker URL 연결
-
-`site/config.js`에서 아래 값을 실제 Worker URL로 바꿉니다.
-
-```js
-window.CLUB_NEWS_CONFIG = {
-  apiBaseUrl: "https://실제-worker-주소.workers.dev"
-};
-```
-
-이 URL은 공개해도 되는 주소이고 API 키가 아닙니다. `main` 브랜치에 푸시하면 GitHub Pages가 다시 배포됩니다.
-
-## 5. 동작 확인
-
-- 구단 선택 → `NAVER 뉴스 검색` 탭에서 뉴스 검색 결과 요청
-- `공식 도메인 검색` 탭에서 `site:공식도메인 구단명` 쿼리의 웹 문서 검색 결과 요청
-- `구단 홈페이지` 탭에서 KBO 10개 구단 공식 사이트 링크 확인
-- `지금 새로고침` 버튼으로 즉시 재조회
-- 페이지가 열려 있으면 30분마다 현재 선택한 검색 탭을 재조회
-
-API 응답은 Worker가 본문을 그대로 전달하고 프런트엔드는 제공된 순서를 유지합니다. 검색 결과의 날짜, 제목, 설명, 링크가 없거나 부정확한 경우 검색 서비스 응답 및 원문 페이지를 확인하세요.
-
-## 공식 공지 자동 수집의 한계
-
-공식 도메인 검색은 NAVER 웹 문서 검색 API를 통해 해당 구단 도메인으로 제한한 검색 결과를 제공합니다. 각 구단의 모든 새 공지나 최신 게시글이 반드시 검색된다는 보장은 없습니다. 특정 구단이 RSS나 공식 API를 제공하는 경우에는 해당 소스의 이용 조건을 확인한 뒤 별도의 공식 피드 탭으로 추가할 수 있습니다.
-
-## 중복 기사 처리
-
-네이버 검색 API 결과에는 자체 중복 제거, 분류, 재정렬을 적용하지 않습니다. 최신 네이버 API 약관이 결과를 독립적으로 가공 없이 노출하도록 요구하기 때문입니다. 공식 RSS/API 피드를 추가할 경우에는 해당 소스의 이용 조건이 허용하는 범위에서 그 피드에 한해 중복을 줄이는 기능을 검토할 수 있습니다.
+저장소 **Settings → Pages → Build and deployment → Source**가 **GitHub Actions**로 설정되어 있어야 합니다. 별도의 비밀 키나 환경변수는 필요하지 않습니다.
